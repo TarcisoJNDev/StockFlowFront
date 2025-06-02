@@ -1,64 +1,88 @@
 import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions, SafeAreaView, Platform, FlatList } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 const { width, height } = Dimensions.get('window');
 
 export default function UsuarioTela({ navigation }) {
-  const fornecedores = [
-    { id: '1', nome: 'Nome do Cliente' },
-
-  ];
-
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-       
-        <TouchableOpacity onPress={() => navigation.navigate('Home')} style={styles.voltar}>
-          <Ionicons name="arrow-back" size={24} color="black" />
-          <Text style={styles.title}>
-            Listar{"\n"}
-            <Text style={styles.bold}>Usuários</Text>
-          </Text>
-        </TouchableOpacity>
-
-        <View style={styles.searchContainer}>
-          <Ionicons name="search" size={20} color="#aaa" style={{ marginLeft: 8 }} />
-          <TextInput placeholder="Pesquisar..." style={styles.input} />
-        </View>
-
-        <Text style={styles.message}>
-          Você ainda não cadastrou. Aperte o botão abaixo para realizar seu primeiro cadastro.
+    <View style={styles.container}>
+      <TouchableOpacity
+        onPress={() => navigation.navigate('Home')}
+        style={styles.voltar}
+      >
+        <Ionicons
+          name="arrow-back"
+          size={width * 0.06}
+          color="black"
+        />
+        <Text style={styles.title}>
+          Listar{"\n"}
+          <Text style={styles.bold}>Usuario</Text>
         </Text>
+      </TouchableOpacity>
 
-        <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('CadastroUsuario')}>
-          <Ionicons name="add" size={32} color="white" />
+      <View style={styles.searchContainer}>
+        <Ionicons
+          name="search"
+          size={width * 0.05}
+          color="#aaa"
+          style={{ marginLeft: width * 0.02 }}
+        />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Pesquisar..."
+          placeholderTextColor="#999"
+        />
+        <TouchableOpacity style={styles.qrButton}>
+          <Ionicons
+            name="qr-code-outline"
+            size={width * 0.06}
+            color="#777"
+          />
         </TouchableOpacity>
       </View>
-    </SafeAreaView>
+
+      <Text style={styles.infoText}>
+        Você ainda não cadastrou. Aperte o botão abaixo para realizar seu primeiro cadastro.
+      </Text>
+
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => navigation.navigate('CadastroUsuario')}
+      >
+        <Ionicons
+          name="add"
+          size={width * 0.08}
+          color="#fff"
+        />
+      </TouchableOpacity>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
   container: {
     flex: 1,
-    paddingHorizontal: width * 0.04,
-    paddingTop: height * 0.047,
-    paddingBottom: height * 0.2,
+    padding: width * 0.05,
+    paddingTop: height * 0.045,
     backgroundColor: '#fff',
   },
   voltar: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: height * 0.01,
+    marginBottom: height * 0.02,
   },
   title: {
-    fontSize: width * 0.038,
-    marginLeft: width * 0.042,
+    fontSize: width * 0.04,
+    marginLeft: width * 0.03,
     color: '#000',
   },
   bold: {
@@ -67,30 +91,39 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderColor: '#ccc',
+    marginTop: height * 0.01,
     borderWidth: 1,
-    borderRadius: 8,
+    borderColor: '#ccc',
+    borderRadius: width * 0.02,
     marginVertical: height * 0.01,
-    paddingHorizontal: width * 0.03,
+    paddingHorizontal: width * 0.01,
+    height: height * 0.06,
   },
-  input: {
+  searchInput: {
     flex: 1,
-    height: 40,
-    marginLeft: width * 0.02,
+    height: '100%',
+    marginLeft: width * 0.01,
+    fontSize: width * 0.04,
   },
-  message: {
-    marginTop: height * 0.007,
+  qrButton: {
+    marginRight: width * 0.02,
+  },
+  infoText: {
+    marginTop: height * 0.01,
+    color: '#666',
     fontSize: width * 0.036,
-    color: '#555',
+    textAlign: 'left',
+    paddingHorizontal: width * 0.01,
   },
-  addButton: {
-    backgroundColor: '#2ecc71',
+  fab: {
     position: 'absolute',
-    bottom: Platform.OS === 'ios' ? height * 0.12 : height * 0.12,
-    right: width * 0.08,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    bottom: height * 0.03,
+    right: width * 0.05,
+    bottom: height * 0.14,
+    backgroundColor: '#2ecc71',
+    borderRadius: width * 0.075,
+    width: width * 0.15,
+    height: width * 0.15,
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 5,

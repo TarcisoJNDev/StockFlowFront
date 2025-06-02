@@ -1,70 +1,156 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   StyleSheet,
-  Modal,
+  Text,
+  Alert,
+  ActivityIndicator,
+  Animated,
   TouchableWithoutFeedback,
   Keyboard,
-  Platform,
+  Dimensions
 } from 'react-native';
-import { Text, TextInput, Button, IconButton } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/AntDesign';
+import { TextInput, Button, IconButton } from 'react-native-paper';
 
-export default function CadastroCategoria({ visible, onClose, navigation }) {
+export default function CadastroCategoria({ navigation }) {
   const [titulo, setTitulo] = useState('');
+  const [loading, setLoading] = useState(false);
+  const slideAnim = useRef(new Animated.Value(Dimensions.get('window').height)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const keyboardHeight = useRef(0);
+  const inputRef = useRef(null);
 
-  const handleAdd = () => {
-    const novaCategoria = { titulo };
-    console.log('Nova categoria:', novaCategoria);
-    if (typeof onAdicionar === 'function') {
-      onAdicionar(novaCategoria);
-    }
-    if (typeof onClose === 'function') {
-      onClose();
+  useEffect(() => {
+    // Animação de entrada (subida + fade in)
+    Animated.parallel([
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 400,
+        useNativeDriver: true,
+      })
+    ]).start();
+
+    const showSubscription = Keyboard.addListener('keyboardDidShow', (e) => {
+      keyboardHeight.current = e.endCoordinates.height;
+      Animated.timing(slideAnim, {
+        toValue: -keyboardHeight.current + 100,
+        duration: 350,
+        useNativeDriver: true,
+      }).start();
+    });
+    
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 250,
+        useNativeDriver: true,
+      }).start();
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
+
+  const handleInputPress = () => {
+    inputRef.current?.focus();
+  };
+
+  const cadastrarCategoria = async () => {
+    try {
+      setLoading(true);
+      if (!titulo.trim()) {
+        Alert.alert('Atenção', 'Por favor, informe o nome da categoria');
+        return;
+      }
+      
+      console.log("Nova categoria:", { titulo });
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      Animated.parallel([
+        Animated.timing(slideAnim, {
+          toValue: Dimensions.get('window').height,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        })
+      ]).start(() => {
+        Alert.alert('Sucesso', 'Categoria cadastrada com sucesso!', [
+          { 
+            text: 'OK', 
+            onPress: () => navigation.goBack() 
+          }
+        ]);
+      });
+      
+    } catch (error) {
+      console.error('Erro ao cadastrar categoria:', error);
+      Alert.alert('Erro', error.response?.data?.message || 'Falha ao cadastrar categoria');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <Modal
-      animationType="slide"
-      transparent={true}
-      visible={visible}
-      onRequestClose={onClose}
-      statusBarTranslucent={true}
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.overlay}>
-          <View style={styles.container}>
-            <IconButton
-              icon={() => <Icon name="close" size={24} />}
-              onPress={() => navigation.goBack()}
-              style={styles.closeButton}
-            />
+    <Animated.View style={[styles.overlay, { opacity: fadeAnim }]}>
+      <TouchableWithoutFeedback onPress={() => {
+        Keyboard.dismiss();
+        navigation.goBack();
+      }}>
+        <View style={styles.overlayBackground} />
+      </TouchableWithoutFeedback>
+      
+      <Animated.View style={[styles.modalContent, { 
+        transform: [{ translateY: slideAnim }],
+      }]}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Categorias</Text>
+          <IconButton
+            icon="close"
+            size={24}
+            onPress={() => navigation.goBack()}
+          />
+        </View>
 
-            <Text style={styles.title}>Categorias de Produtos</Text>
-
+        <TouchableWithoutFeedback onPress={handleInputPress}>
+          <View>
             <TextInput
-              label="Título*"
+              ref={inputRef}
+              label="Nome da Categoria*"
               value={titulo}
               onChangeText={setTitulo}
               mode="outlined"
               style={styles.input}
               activeOutlineColor="#4CAF50"
               outlineColor="#ccc"
-              textColor="#000"
+              right={<TextInput.Icon icon="tag-outline" />}
+              autoComplete="off"
+              autoCapitalize="words"
             />
-
-            <Button
-              mode="contained"
-              onPress={handleAdd}
-              style={[styles.button, { backgroundColor: '#4CAF50' }]}
-            >
-              Adicionar
-            </Button>
           </View>
-        </View>
-      </TouchableWithoutFeedback>
-    </Modal>
+        </TouchableWithoutFeedback>
+
+        <Button
+          mode="contained"
+          onPress={cadastrarCategoria}
+          style={styles.button}
+          buttonColor="#4CAF50"
+          disabled={loading}
+        >
+          {loading ? <ActivityIndicator color="#fff" /> : 'Adicionar Categoria'}
+        </Button>
+      </Animated.View>
+    </Animated.View>
   );
 }
 
@@ -73,37 +159,36 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-end',
     backgroundColor: 'rgba(0,0,0,0.5)',
-    paddingBottom: 0,
   },
-  container: {
+  overlayBackground: {
+    flex: 1,
+  },
+  modalContent: {
     backgroundColor: '#fff',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
     padding: 20,
-    elevation: 5,
-    position: 'relative',
-    marginBottom: 0,
-    paddingBottom: Platform.OS === 'android' ? 10 : 20,
+    width: '100%',
+    minHeight: Dimensions.get('window').height * 0.5,
   },
-  closeButton: {
-    position: 'absolute',
-    right: 10,
-    top: 10,
-    zIndex: 1,
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
   },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 16,
     color: '#000',
-    textAlign: 'center',
   },
   input: {
-    marginBottom: 12,
+    marginBottom: 20,
+    backgroundColor: '#fff',
   },
   button: {
-    marginTop: 20,
-    marginBottom: 40,
-    padding: 8,
+    borderRadius: 8,
+    paddingVertical: 8,
+    marginTop: 10,
   },
 });

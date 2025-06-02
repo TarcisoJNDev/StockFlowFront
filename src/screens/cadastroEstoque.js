@@ -1,81 +1,138 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, Modal, StyleSheet, Platform } from 'react-native';
+import React, { useRef, useEffect } from 'react';
+import {
+  View,
+  StyleSheet,
+  KeyboardAvoidingView,
+  ScrollView,
+  SafeAreaView,
+  Text,
+  Animated,
+  Platform,
+  TouchableOpacity
+} from 'react-native';
+import { IconButton } from 'react-native-paper';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-export default function CadastroEstoque({ visible, onClose, navigation }) {
+export default function CadastroEstoque({ navigation }) {
+  const slideAnim = useRef(new Animated.Value(1000)).current;
+
+  useEffect(() => {
+    Animated.timing(slideAnim, {
+      toValue: 0,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
   return (
-    <Modal
-      animationType="slide"
-      transparent={true}
-      visible={visible}
-      onRequestClose={onClose}
-      statusBarTranslucent={true}
-    >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
-          <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack('')} >
-            <Text style={styles.closeText}>X</Text>
-          </TouchableOpacity>
+    <SafeAreaView style={styles.overlay}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={{ flex: 1 }}
+      >
+        <Animated.View style={[styles.modalContent, { transform: [{ translateY: slideAnim }] }]}>
+          <View style={styles.header}>
+            <Text style={styles.title}>Estoque</Text>
+            <IconButton
+              icon="close"
+              size={24}
+              onPress={() => navigation.goBack()}
+            />
+          </View>
 
-          <Text style={styles.modalTitle}>Controle</Text>
+          <ScrollView 
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+        
+            <TouchableOpacity 
+              style={styles.optionCard}
+              onPress={() => navigation.navigate('EntradaEstoque')}
+              activeOpacity={0.7}
+            >
+              <Icon name="cart-arrow-down" size={24} color="#2ecc71" style={styles.icon} />
+              <View style={styles.optionTextContainer}>
+                <Text style={styles.optionTitle}>Entrada de Estoque</Text>
+                <Text style={styles.optionText}>
+                  Utilize essa opção para cadastrar uma nova entrada de estoque de produto
+                  para deixar o seu estoque atualizado!
+                </Text>
+              </View>
+            </TouchableOpacity>
 
-          <TouchableOpacity style={styles.optionCard} onPress={() => navigation.navigate('EntradaEstoque')}>
-            <Text style={styles.optionTitle}>Entrada de Estoque</Text>
-            <Text style={styles.optionText}>
-              Utilize essa opção para cadastrar uma nova entrada de estoque de produto
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.optionCard} onPress={() => navigation.navigate('RetiradaEstoque')}>
-            <Text style={styles.optionTitle}>Debitar</Text>
-            <Text style={styles.optionText}>
-              Quebrou, cadastrou errado, venceu? Utilize essa opção para debitar do estoque sem refletir no financeiro
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </Modal>
+            <TouchableOpacity 
+              style={styles.optionCard}
+              onPress={() => navigation.navigate('RetiradaEstoque')}
+              activeOpacity={0.7}
+            >
+              <Icon name="cart-remove" size={24} color="#e74c3c" style={styles.icon} />
+              <View style={styles.optionTextContainer}>
+                <Text style={styles.optionTitle}>Debitar</Text>
+                <Text style={styles.optionText}>
+                  Quebrou, cadastrou errado, venceu? Utilize essa opção para debitar do estoque sem refletir no financeiro
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </ScrollView>
+        </Animated.View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  modalOverlay: {
+  overlay: {
     flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0, 0, 0, 0.11)',
   },
   modalContent: {
-    backgroundColor: 'white',
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
     paddingHorizontal: 20,
     paddingTop: 20,
-    paddingBottom: Platform.OS === 'android' ? 60 : 30,
-    borderTopRightRadius: 20,
-    borderTopLeftRadius: 20,
+    paddingBottom: 30,
     width: '100%',
-    minHeight: '30%',
+    position: 'absolute',
+    bottom: 0,      
+    maxHeight: '70%',
+    height: 425,
   },
-  closeButton: {
-    alignSelf: 'flex-end',
+  scrollContent: {
+    paddingBottom: 20,
   },
-  closeText: {
-    fontSize: 20,
-    fontWeight: 'bold',
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
   },
-  modalTitle: {
+  title: {
     fontSize: 22,
     fontWeight: 'bold',
-    marginBottom: 15,
+    color: '#000',
   },
   optionCard: {
-    marginVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 12,
     padding: 15,
-    backgroundColor: '#f3f3f3',
+    backgroundColor: '#f8f9fa',
     borderRadius: 10,
     elevation: 2,
+  },
+  icon: {
+    marginRight: 15,
+  },
+  optionTextContainer: {
+    flex: 1,
   },
   optionTitle: {
     fontWeight: 'bold',
     fontSize: 16,
     marginBottom: 5,
+    color: '#333',
   },
   optionText: {
     fontSize: 14,

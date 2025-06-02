@@ -5,11 +5,14 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  Animated
+  Animated,
+  Alert,
+  ActivityIndicator
 } from 'react-native';
 import { TextInput, Button, Text, IconButton } from 'react-native-paper';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import api from '../services/api';
 
 export default function CadastroClientes({ navigation }) {
   const [nome, setNome] = useState('');
@@ -28,6 +31,49 @@ export default function CadastroClientes({ navigation }) {
   const [datePickerVisible, setDatePickerVisible] = useState(false);
   const [mostrarEndereco, setMostrarEndereco] = useState(false);
 
+  const formatDateInput = (text) => {
+    let cleaned = text.replace(/\D/g, '');
+
+    let formatted = '';
+    if (cleaned.length > 0) {
+      formatted = cleaned.substring(0, 2);
+    }
+    if (cleaned.length > 2) {
+      formatted += '/' + cleaned.substring(2, 4);
+    }
+    if (cleaned.length > 4) {
+      formatted += '/' + cleaned.substring(4, 8);
+    }
+
+    return formatted;
+  };
+
+  const parseDateFromText = (text) => {
+    const [day, month, year] = text.split('/').map(Number);
+    if (day && month && year) {
+      return new Date(year, month - 1, day);
+    }
+    return null;
+  };
+
+  const handleConfirmDate = (date) => {
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    const formattedDate = (`${day}/${month}/${year}`);
+    setDataNascimento(formattedDate);
+    setDatePickerVisible(false);
+  };
+
+  const handleDateBlur = () => {
+    const date = parseDateFromText(dataNascimento);
+    if (!date || isNaN(date.getTime())) {
+      Alert.alert('Data inválida', 'Por favor, insira uma data válida no formato DD/MM/AAAA');
+      setDataNascimento('');
+    }
+  };
+
+  const [loading, setLoading] = useState(false);
   const slideAnim = useRef(new Animated.Value(1000)).current;
 
   useEffect(() => {
@@ -38,29 +84,140 @@ export default function CadastroClientes({ navigation }) {
     }).start();
   }, []);
 
-  const handleConfirmDate = (date) => {
-    setDataNascimento(date.toISOString().split('T')[0]);
-    setDatePickerVisible(false);
+
+
+  
+  const cadastrarCliente = async () => {
+    try {
+      setLoading(true);
+
+      const dadosCliente = {
+        nome,
+        cpf_cnpj: cpfCnpj.replace(/\D/g, ''),
+        telefone: telefone.replace(/\D/g, ''),
+        email,
+        data_nascimento: dataNascimento,
+        observacao,
+        endereco: mostrarEndereco ? {
+          cep: cep.replace(/\D/g, ''),
+          uf,
+          cidade,
+          logradouro: endereco,
+          numero,
+          bairro,
+          complemento
+        } : null
+      };
+
+      console.log("📤 Dados do cliente:", dadosCliente);
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      Alert.alert('Sucesso', 'Cliente cadastrado com sucesso!');
+      navigation.goBack();
+
+    } catch (error) {
+      console.error('Erro ao cadastrar cliente:', error);
+      Alert.alert('Erro', error.response?.data?.message || 'Falha ao cadastrar cliente');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSubmit = () => {
-    const formData = {
-      nome,
-      cpfCnpj,
-      telefone,
-      email,
-      dataNascimento,
-      observacao,
-      cep,
-      uf,
-      cidade,
-      endereco,
-      numero,
-      bairro,
-      complemento,
-    };
-    console.log(formData);
-    navigation.goBack();
+    if (!nome) {
+      Alert.alert('Atenção', 'Por favor, informe o nome do cliente');
+      return;
+    }
+    if (!cpfCnpj) {
+      Alert.alert('Atenção', 'Por favor, informe o CPF/CNPJ');
+      return;
+    }
+    if (mostrarEndereco && !cep) {
+      Alert.alert('Atenção', 'Por favor, informe o CEP');
+      return;
+    }
+    cadastrarCliente();
+  };
+
+  const formatPhone = (text) => {
+    const cleaned = text.replace(/\D/g, '');
+    let formattedText = '';
+
+    if (cleaned.length > 0) {
+      formattedText = (`(${cleaned.substring(0, 2)})`);
+    }
+    if (cleaned.length > 2) {
+      formattedText = (`${formattedText} ${cleaned.substring(2, 7)}`);
+    }
+    if (cleaned.length > 7) {
+      formattedText = (`${formattedText}-${cleaned.substring(7, 11)}`);
+    }
+    return formattedText;
+  };
+
+  const formatCPF = (text) => {
+    const cleaned = text.replace(/\D/g, '');
+    let formattedText = '';
+
+    if (cleaned.length > 0) {
+      formattedText = (`${cleaned.substring(0, 3)}`);
+    }
+    if (cleaned.length > 3) {
+      formattedText = (`${formattedText}.${cleaned.substring(3, 6)}`);
+    }
+    if (cleaned.length > 6) {
+      formattedText = (`${formattedText}.${cleaned.substring(6, 9)}`);
+    }
+    if (cleaned.length > 9) {
+      formattedText = (`${formattedText}-${cleaned.substring(9, 11)}`);
+    }
+    return formattedText;
+  };
+
+  const formatCNPJ = (text) => {
+    const cleaned = text.replace(/\D/g, '');
+    let formattedText = '';
+
+    if (cleaned.length > 0) {
+      formattedText = (`${cleaned.substring(0, 2)}`);
+    }
+    if (cleaned.length > 2) {
+      formattedText = (`${formattedText}.${cleaned.substring(2, 5)}`);
+    }
+    if (cleaned.length > 5) {
+      formattedText = (`${formattedText}.${cleaned.substring(5, 8)}`);
+    }
+    if (cleaned.length > 8) {
+      formattedText = (`${formattedText}/${cleaned.substring(8, 12)}`);
+    }
+    if (cleaned.length > 12) {
+      formattedText = (`${formattedText}-${cleaned.substring(12, 14)}`);
+    }
+
+    return formattedText;
+  };
+
+  const handleCpfCnpjChange = (text) => {
+    const cleaned = text.replace(/\D/g, '');
+    if (cleaned.length <= 11) {
+      setCpfCnpj(formatCPF(text));
+    } else {
+      setCpfCnpj(formatCNPJ(text));
+    }
+  };
+
+  const formatCEP = (text) => {
+    const cleaned = text.replace(/\D/g, '');
+    let formattedText = '';
+
+    if (cleaned.length > 0) {
+      formattedText = (`${cleaned.substring(0, 5)}`);
+    }
+    if (cleaned.length > 5) {
+      formattedText = (`${formattedText}-${cleaned.substring(5, 8)}`);
+    }
+
+    return formattedText;
   };
 
   return (
@@ -70,6 +227,7 @@ export default function CadastroClientes({ navigation }) {
         style={{ flex: 1 }}
       >
         <Animated.View style={[styles.modalContent, { transform: [{ translateY: slideAnim }] }]}>
+
           <View style={styles.header}>
             <Text style={styles.title}>Clientes</Text>
             <IconButton
@@ -83,6 +241,7 @@ export default function CadastroClientes({ navigation }) {
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
           >
+
             <TextInput
               label="Nome*"
               value={nome}
@@ -92,25 +251,34 @@ export default function CadastroClientes({ navigation }) {
               activeOutlineColor="#4CAF50"
               outlineColor="#ccc"
               right={<TextInput.Icon icon="account" />}
+              autoCapitalize="words"
             />
 
             <TextInput
               label="CPF/CNPJ*"
               value={cpfCnpj}
-              onChangeText={setCpfCnpj}
+              onChangeText={handleCpfCnpjChange}
               mode="outlined"
               style={styles.input}
+              keyboardType="numeric"
+              maxLength={18}
               right={<TextInput.Icon icon="card-account-details-outline" />}
               activeOutlineColor="#4CAF50"
               outlineColor="#ccc"
+              autoComplete='off'
+              autoCorrect={false}
+              autoCapitalize='none'
+              importantForAutofill='no'
             />
 
             <TextInput
               label="Telefone*"
               value={telefone}
-              onChangeText={setTelefone}
+              onChangeText={(text) => setTelefone(formatPhone(text))}
               mode="outlined"
               style={styles.input}
+              keyboardType="phone-pad"
+              maxLength={15}
               right={<TextInput.Icon icon="phone" />}
               activeOutlineColor="#4CAF50"
               outlineColor="#ccc"
@@ -122,6 +290,9 @@ export default function CadastroClientes({ navigation }) {
               onChangeText={setEmail}
               mode="outlined"
               style={styles.input}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
               right={<TextInput.Icon icon="email-outline" />}
               activeOutlineColor="#4CAF50"
               outlineColor="#ccc"
@@ -130,9 +301,13 @@ export default function CadastroClientes({ navigation }) {
             <TextInput
               label="Data de Nascimento*"
               value={dataNascimento}
+              onChangeText={(text) => setDataNascimento(formatDateInput(text))}
+              onBlur={handleDateBlur}
               mode="outlined"
               style={styles.input}
-              editable={false}
+              keyboardType="numeric"
+              maxLength={10} 
+              placeholder="DD/MM/AAAA"
               right={
                 <TextInput.Icon
                   icon="calendar"
@@ -148,6 +323,7 @@ export default function CadastroClientes({ navigation }) {
               mode="date"
               onConfirm={handleConfirmDate}
               onCancel={() => setDatePickerVisible(false)}
+              maximumDate={new Date()}
             />
 
             <TextInput
@@ -174,9 +350,11 @@ export default function CadastroClientes({ navigation }) {
                 <TextInput
                   label="CEP*"
                   value={cep}
-                  onChangeText={setCep}
+                  onChangeText={(text) => setCep(formatCEP(text))}
                   mode="outlined"
                   style={styles.input}
+                  keyboardType="numeric"
+                  maxLength={9}
                   activeOutlineColor="#4CAF50"
                   outlineColor="#ccc"
                 />
@@ -190,7 +368,10 @@ export default function CadastroClientes({ navigation }) {
                     style={[styles.input, { flex: 1, marginRight: 5 }]}
                     activeOutlineColor="#4CAF50"
                     outlineColor="#ccc"
+                    maxLength={2}
+                    autoCapitalize="characters"
                   />
+
                   <TextInput
                     label="Cidade*"
                     value={cidade}
@@ -199,6 +380,7 @@ export default function CadastroClientes({ navigation }) {
                     style={[styles.input, { flex: 2, marginLeft: 5 }]}
                     activeOutlineColor="#4CAF50"
                     outlineColor="#ccc"
+                    autoCapitalize="words"
                   />
                 </View>
 
@@ -210,6 +392,7 @@ export default function CadastroClientes({ navigation }) {
                   style={styles.input}
                   activeOutlineColor="#4CAF50"
                   outlineColor="#ccc"
+                  autoCapitalize="words"
                 />
 
                 <View style={styles.row}>
@@ -219,6 +402,7 @@ export default function CadastroClientes({ navigation }) {
                     onChangeText={setNumero}
                     mode="outlined"
                     style={[styles.input, { flex: 1, marginRight: 5 }]}
+                    keyboardType="numeric"
                     activeOutlineColor="#4CAF50"
                     outlineColor="#ccc"
                   />
@@ -230,6 +414,7 @@ export default function CadastroClientes({ navigation }) {
                     style={[styles.input, { flex: 2, marginLeft: 5 }]}
                     activeOutlineColor="#4CAF50"
                     outlineColor="#ccc"
+                    autoCapitalize="words"
                   />
                 </View>
 
@@ -245,13 +430,19 @@ export default function CadastroClientes({ navigation }) {
               </>
             )}
 
+
             <Button
               mode="contained"
               onPress={handleSubmit}
               style={styles.button}
               buttonColor="#4CAF50"
+              disabled={loading}
             >
-              Adicionar
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                'Adicionar'
+              )}
             </Button>
           </ScrollView>
         </Animated.View>
