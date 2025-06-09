@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { Text, TextInput, Button, IconButton } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/AntDesign';
-import api from '../services/api';
+import api from '../../services/api';
 
 const { width, height } = Dimensions.get('window');
 
@@ -87,7 +87,6 @@ export default function CadastroUsuario({ visible, onClose, navigation, onUsuari
       if (typeof onUsuarioAdicionado === 'function') {
         onUsuarioAdicionado(novoUsuario);
       }
-
     } catch (error) {
       console.error('Erro ao cadastrar usuário:', error);
       Alert.alert(

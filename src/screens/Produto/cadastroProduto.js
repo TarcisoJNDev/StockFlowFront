@@ -18,14 +18,20 @@ import { Feather } from '@expo/vector-icons';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
-import api from '../services/api';
+import api from '../../services/api';
 
 export default function CadastroProduto({ navigation }) {
-  // Estados dos campos do formulário
+
   const [codigoDeBarras, setCodigoDeBarras] = useState('');
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
   const [custo, setCusto] = useState('');
+  const [fornecedores, setFornecedores] = useState([]);
+  const [categorias, setCategorias] = useState([]);
+  const [showFornecedores, setShowFornecedores] = useState(false);
+  const [showCategorias, setShowCategorias] = useState(false);
+  const [fornecedorSelecionado, setFornecedorSelecionado] = useState(null);
+  const [categoriaSelecionada, setCategoriaSelecionada] = useState(null);
   const [preco, setPreco] = useState('');
   const [lucroPercentual, setLucroPercentual] = useState('');
   const [lucroReais, setLucroReais] = useState('');
@@ -35,10 +41,45 @@ export default function CadastroProduto({ navigation }) {
   const [qtdMinimaCompra, setQtdMinimaCompra] = useState('');
   const [vendaFracionada, setVendaFracionada] = useState(false);
   const [unidadeMedida, setUnidadeMedida] = useState('');
+  const [showUnidadesMedida, setShowUnidadesMedida] = useState(false);
   const [foto, setFoto] = useState(null);
   const [loading, setLoading] = useState(false);
-  
-  // Animação
+
+  useEffect(() => {
+    const carregarDados = async () => {
+      try {
+        const responseFornecedores = await api.get('/fornecedor/');
+        setFornecedores(responseFornecedores.data);
+
+        const responseCategorias = await api.get('/categoria/');
+        setCategorias(responseCategorias.data);
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error);
+      }
+    };
+
+    carregarDados();
+  }, []);
+
+  useEffect(() => {
+    if (custo && preco) {
+      const custoNum = parseFloat(custo.replace('.', '').replace(',', '.'));
+      const precoNum = parseFloat(preco.replace('.', '').replace(',', '.'));
+
+      if (custoNum > 0 && precoNum > 0) {
+        const lucroEmReais = precoNum - custoNum;
+        setLucroReais(lucroEmReais.toFixed(2).replace('.', ','));
+
+        const lucroPercent = ((precoNum - custoNum) / custoNum) * 100;
+        setLucroPercentual(lucroPercent.toFixed(2).replace('.', ','));
+      }
+    } else {
+      setLucroReais('');
+      setLucroPercentual('');
+    }
+  }, [custo, preco]);
+
+
   const slideAnim = useRef(new Animated.Value(1000)).current;
 
   useEffect(() => {
@@ -49,7 +90,21 @@ export default function CadastroProduto({ navigation }) {
     }).start();
   }, []);
 
-  // Função para selecionar foto
+  const unidadesMedida = [
+    { id: 1, nome: 'Unidade (un)' },
+    { id: 2, nome: 'Quilograma (kg)' },
+    { id: 3, nome: 'Grama (g)' },
+    { id: 4, nome: 'Litro (L)' },
+    { id: 5, nome: 'Mililitro (mL)' },
+    { id: 6, nome: 'Metro (m)' },
+    { id: 7, nome: 'Centímetro (cm)' },
+    { id: 8, nome: 'Milímetro (mm)' },
+    { id: 9, nome: 'Caixa (cx)' },
+    { id: 10, nome: 'Pacote (pc)' },
+    { id: 11, nome: 'Fardo (fd)' },
+    { id: 12, nome: 'Dúzia (dz)' },
+  ];
+
   const selecionarFoto = async () => {
     try {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -74,28 +129,10 @@ export default function CadastroProduto({ navigation }) {
     }
   };
 
-  // Função assíncrona para cadastrar produto
   const cadastrarProduto = async () => {
     try {
       setLoading(true);
 
-      // Formata os dados antes de enviar
-      const dadosProduto = {
-        codigo_de_barras: codigoDeBarras.replace(/\D/g, ''),
-        titulo,
-        descricao,
-        custo: parseFloat(custo.replace(',', '.')),
-        preco: parseFloat(preco.replace(',', '.')),
-        estoque: parseInt(estoque),
-        estoque_minimo: parseInt(estoqueMinimo),
-        mostrar_catalogo: mostrarCatalogo,
-        venda_fracionada: vendaFracionada,
-        unidade_medida: vendaFracionada ? unidadeMedida : null,
-        qtd_minima_compra: qtdMinimaCompra ? parseInt(qtdMinimaCompra) : null,
-        foto: foto ? foto : null
-      };
-
-      // Validações básicas
       if (!titulo) {
         Alert.alert('Atenção', 'Por favor, informe o título do produto');
         return;
@@ -111,43 +148,65 @@ export default function CadastroProduto({ navigation }) {
         return;
       }
 
-      // Versão para teste (apenas log)
-      console.log("📤 Dados do produto:", dadosProduto);
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Simula delay
+      const dadosProduto = {
+        nome: titulo,
+        codigoDeBarras: codigoDeBarras.replace(/\D/g, ''),
+        descricao: descricao || null,
+        custoCompra: parseFloat(custo.replace(',', '.')),
+        precoUnitario: parseFloat(preco.replace(',', '.')),
+        precoUnitarioVenda: parseFloat(preco.replace(',', '.')),
+        estoqueAtual: parseInt(estoque) || 0,
+        foto: foto || null
+      };
+      const response = await api.post('/produto/', dadosProduto);
 
-      // Versão real (descomente quando tiver o endpoint)
-      // const response = await api.post('/produtos', dadosProduto);
-      // console.log('Produto cadastrado:', response.data);
-
-      Alert.alert('Sucesso', 'Produto cadastrado com sucesso!');
-      navigation.goBack();
+      Animated.timing(slideAnim, {
+        toValue: 1000,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => {
+        Alert.alert('Sucesso', 'Produto cadastrado com sucesso!', [
+          {
+            text: 'OK',
+            onPress: () => navigation.goBack()
+          }
+        ]);
+      });
 
     } catch (error) {
       console.error('Erro ao cadastrar produto:', error);
-      Alert.alert('Erro', error.response?.data?.message || 'Falha ao cadastrar produto');
+
+      let errorMessage = 'Falha ao cadastrar produto';
+      if (error.response) {
+        if (error.response.status === 409) {
+          errorMessage = 'Código de barras já cadastrado';
+        } else if (error.response.data?.message) {
+          errorMessage = error.response.data.message;
+        }
+      }
+
+      Alert.alert('Erro', errorMessage);
     } finally {
       setLoading(false);
     }
   };
+  const formatCurrency = (value) => {
+    let cleaned = value.replace(/\D/g, '');
 
-  // Funções de formatação
-  const formatCurrency = (text) => {
-    const cleaned = text.replace(/\D/g, '');
-    let formattedText = '';
-    
-    if (cleaned.length > 0) {
-      // Converte para formato de moeda (ex: 1234 -> 12,34)
-      const reais = cleaned.slice(0, -2) || '0';
-      const centavos = cleaned.slice(-2).padStart(2, '0');
-      formattedText = (`${reais},${centavos}`);
-      
-      // Remove zeros à esquerda
-      formattedText = formattedText.replace(/^0+/, '');
-      if (formattedText.startsWith(',')) formattedText = '0' + formattedText;
-    }
-    
-    return formattedText;
+    if (cleaned.length === 0) return '';
+
+    cleaned = cleaned.padStart(3, '0');
+
+    const reais = cleaned.slice(0, -2);
+    const centavos = cleaned.slice(-2);
+
+    const formattedReais = reais.length > 0
+      ? parseInt(reais).toLocaleString('pt-BR')
+      : '0';
+
+    return (`${formattedReais},${centavos}`);
   };
+
 
   return (
     <SafeAreaView style={styles.overlay}>
@@ -156,6 +215,7 @@ export default function CadastroProduto({ navigation }) {
         style={{ flex: 1 }}
       >
         <Animated.View style={[styles.modalContent, { transform: [{ translateY: slideAnim }] }]}>
+
           <View style={styles.header}>
             <Text style={styles.title}>Produtos</Text>
             <IconButton icon="close" size={24} onPress={() => navigation.goBack()} />
@@ -167,9 +227,9 @@ export default function CadastroProduto({ navigation }) {
               {foto ? (
                 <Image source={{ uri: foto }} style={styles.productImage} />
               ) : (
-                <Image source={require('../../assets/produtoExemplo.png')} style={styles.productImage} />
+                <Image source={require('../../../assets/images/produtoExemplo.png')} style={styles.productImage} />
               )}
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.addPhotoButton}
                 onPress={selecionarFoto}
               >
@@ -227,22 +287,87 @@ export default function CadastroProduto({ navigation }) {
             />
 
             {/* Fornecedor */}
-            <TouchableOpacity style={styles.selectInput}>
-              <Text style={styles.selectText}>Fornecedor*</Text>
-              <Feather name="chevron-down" size={20} color="#999" />
+            <TouchableOpacity
+              style={styles.selectInput}
+              onPress={() => setShowFornecedores(!showFornecedores)}
+            >
+              <Text style={fornecedorSelecionado ? styles.selectTextSelected : styles.selectText}>
+                {fornecedorSelecionado ? fornecedorSelecionado.nome : 'Selecione um fornecedor*'}
+              </Text>
+              <Feather
+                name={showFornecedores ? "chevron-up" : "chevron-down"}
+                size={20}
+                color="#999"
+              />
             </TouchableOpacity>
+
+            {showFornecedores && (
+              <View style={styles.dropdownContainer}>
+                <ScrollView
+                  style={styles.dropdownScroll}
+                  nestedScrollEnabled={true}
+                >
+                  {fornecedores.map((fornecedor) => (
+                    <TouchableOpacity
+                      key={fornecedor.id}
+                      style={styles.dropdownItem}
+                      onPress={() => {
+                        setFornecedorSelecionado(fornecedor);
+                        setShowFornecedores(false);
+                      }}
+                    >
+                      <Text>{fornecedor.nome}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
+
 
             {/* Categoria */}
-            <TouchableOpacity style={styles.selectInput}>
-              <Text style={styles.selectText}>Categoria*</Text>
-              <Feather name="chevron-down" size={20} color="#999" />
+            <TouchableOpacity
+              style={styles.selectInput}
+              onPress={() => setShowCategorias(!showCategorias)}
+            >
+              <Text style={categoriaSelecionada ? styles.selectTextSelected : styles.selectText}>
+                {categoriaSelecionada ? categoriaSelecionada.nome : 'Selecione uma categoria*'}
+              </Text>
+              <Feather
+                name={showCategorias ? "chevron-up" : "chevron-down"}
+                size={20}
+                color="#999"
+              />
             </TouchableOpacity>
 
-            {/* Custo */}
+            {showCategorias && (
+              <View style={styles.dropdownContainer}>
+                <ScrollView
+                  style={styles.dropdownScroll}
+                  nestedScrollEnabled={true}
+                >
+                  {categorias.map((categoria) => (
+                    <TouchableOpacity
+                      key={categoria.id}
+                      style={styles.dropdownItem}
+                      onPress={() => {
+                        setCategoriaSelecionada(categoria);
+                        setShowCategorias(false);
+                      }}
+                    >
+                      <Text>{categoria.nome}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
+
             <TextInput
               label="Custo (R$)*"
               value={custo}
-              onChangeText={(text) => setCusto(formatCurrency(text))}
+              onChangeText={(text) => {
+                const formatted = formatCurrency(text);
+                setCusto(formatted);
+              }}
               mode="outlined"
               keyboardType="numeric"
               style={styles.input}
@@ -251,11 +376,13 @@ export default function CadastroProduto({ navigation }) {
               right={<TextInput.Icon icon="currency-usd" />}
             />
 
-            {/* Preço */}
             <TextInput
               label="Preço (R$)*"
               value={preco}
-              onChangeText={(text) => setPreco(formatCurrency(text))}
+              onChangeText={(text) => {
+                const formatted = formatCurrency(text);
+                setPreco(formatted);
+              }}
               mode="outlined"
               keyboardType="numeric"
               style={styles.input}
@@ -263,32 +390,27 @@ export default function CadastroProduto({ navigation }) {
               outlineColor="#ccc"
               right={<TextInput.Icon icon="currency-usd" />}
             />
+            <TextInput
+              label="Lucro (%)"
+              value={lucroPercentual}
+              mode="outlined"
+              style={[styles.input, { flex: 1, marginRight: 0 }]}
+              activeOutlineColor="#4CAF50"
+              outlineColor="#ccc"
+              right={<TextInput.Icon icon="percent" />}
+              editable={false}
+            />
 
-            {/* Lucro */}
-            <View style={styles.row}>
-              <TextInput
-                label="Lucro (%)"
-                value={lucroPercentual}
-                onChangeText={setLucroPercentual}
-                mode="outlined"
-                keyboardType="numeric"
-                style={[styles.input, { flex: 1, marginRight: 5 }]}
-                activeOutlineColor="#4CAF50"
-                outlineColor="#ccc"
-                right={<TextInput.Icon icon="percent" />}
-              />
-              <TextInput
-                label="Lucro (R$)"
-                value={lucroReais}
-                onChangeText={setLucroReais}
-                mode="outlined"
-                keyboardType="numeric"
-                style={[styles.input, { flex: 1, marginLeft: 5 }]}
-                activeOutlineColor="#4CAF50"
-                outlineColor="#ccc"
-                right={<TextInput.Icon icon="currency-usd" />}
-              />
-            </View>
+            <TextInput
+              label="Lucro (R$)"
+              value={lucroReais}
+              mode="outlined"
+              style={[styles.input, { flex: 1, marginLeft: 0 }]}
+              activeOutlineColor="#4CAF50"
+              outlineColor="#ccc"
+              right={<TextInput.Icon icon="currency-usd" />}
+              editable={false}
+            />
 
             {/* Estoque */}
             <View style={styles.row}>
@@ -319,9 +441,9 @@ export default function CadastroProduto({ navigation }) {
             {/* Mostrar no catálogo */}
             <View style={styles.switchRow}>
               <Text style={styles.label}>Mostrar no catálogo?</Text>
-              <Switch 
-                value={mostrarCatalogo} 
-                onValueChange={setMostrarCatalogo} 
+              <Switch
+                value={mostrarCatalogo}
+                onValueChange={setMostrarCatalogo}
                 trackColor={{ false: "#767577", true: "#81b0ff" }}
                 thumbColor={mostrarCatalogo ? "#4CAF50" : "#f4f3f4"}
               />
@@ -343,9 +465,9 @@ export default function CadastroProduto({ navigation }) {
             {/* Venda fracionada */}
             <View style={styles.switchRow}>
               <Text style={styles.label}>Venda fracionada?</Text>
-              <Switch 
-                value={vendaFracionada} 
-                onValueChange={setVendaFracionada} 
+              <Switch
+                value={vendaFracionada}
+                onValueChange={setVendaFracionada}
                 trackColor={{ false: "#767577", true: "#81b0ff" }}
                 thumbColor={vendaFracionada ? "#4CAF50" : "#f4f3f4"}
               />
@@ -353,12 +475,43 @@ export default function CadastroProduto({ navigation }) {
 
             {/* Unidade de medida (condicional) */}
             {vendaFracionada && (
-              <TouchableOpacity style={styles.selectInput}>
-                <Text style={styles.selectText}>
-                  {unidadeMedida || 'Unidade de medida (Ex: kg, ml)'}
-                </Text>
-                <Feather name="chevron-down" size={20} color="#999" />
-              </TouchableOpacity>
+              <View style={styles.unidadeMedidaContainer}>
+                <TouchableOpacity
+                  style={styles.selectInput}
+                  onPress={() => setShowUnidadesMedida(!showUnidadesMedida)}
+                >
+                  <Text style={unidadeMedida ? styles.selectTextSelected : styles.selectText}>
+                    {unidadeMedida || 'Selecione a unidade de medida'}
+                  </Text>
+                  <Feather
+                    name={showUnidadesMedida ? "chevron-up" : "chevron-down"}
+                    size={20}
+                    color="#999"
+                  />
+                </TouchableOpacity>
+
+                {showUnidadesMedida && (
+                  <View style={styles.dropdownContainer}>
+                    <ScrollView
+                      style={styles.dropdownScroll}
+                      nestedScrollEnabled={true} // Importante para ScrollView dentro de outro ScrollView
+                    >
+                      {unidadesMedida.map((item) => (
+                        <TouchableOpacity
+                          key={item.id}
+                          style={styles.dropdownItem}
+                          onPress={() => {
+                            setUnidadeMedida(item.nome);
+                            setShowUnidadesMedida(false);
+                          }}
+                        >
+                          <Text>{item.nome}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                  </View>
+                )}
+              </View>
             )}
 
             {/* Botão de Salvar */}
@@ -378,7 +531,7 @@ export default function CadastroProduto({ navigation }) {
           </ScrollView>
         </Animated.View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </SafeAreaView >
   );
 }
 
@@ -479,5 +632,57 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgb(87, 87, 87)',
     padding: 12,
     borderRadius: 6,
+  },
+  unidadeMedidaContainer: {
+    marginBottom: 12,
+    zIndex: 1,
+  },
+  selectInput: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 4,
+    marginBottom: 10,
+    padding: 14,
+  },
+  selectText: {
+    fontSize: 16,
+    color: '#555',
+  },
+  selectTextSelected: {
+    fontSize: 16,
+    color: '#000',
+  },
+  dropdown: {
+    position: 'absolute',
+    top: 50,
+    left: 0,
+    right: 0,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 4,
+    maxHeight: 200,
+    elevation: 3,
+    zIndex: 2,
+  },
+  dropdownScroll: {
+    flexGrow: 1,
+  },
+  dropdownContainer: {
+    maxHeight: 200,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 4,
+    backgroundColor: '#fff',
+    marginTop: 4,
+    elevation: 3,
+  },
+  dropdownItem: {
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
   },
 });

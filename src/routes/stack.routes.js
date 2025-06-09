@@ -1,22 +1,22 @@
 
 import { createNativeStackNavigator} from '@react-navigation/native-stack';
 
-import Login from '../screens/login';
-import TelaInicial from '../screens/telaInicial';
-import CriarConta from '../screens/criarConta';
-import AjudaWhats from '../screens/ajudaWhats';
-import CadastroProduto from '../screens/cadastroProduto';
-import CadastroFornecedor from '../screens/cadastroFornecedor';
-import CadastroClientes from '../screens/cadastroClientes';
-import CadastroEstoque from '../screens/cadastroEstoque';
-import EntradaEstoque from '../screens/entradaEstoque';
-import RetiradaEstoque from '../screens/retiradaEstoque';
-import FiltroEstoque from '../screens/filtroEstoque';
-import CategoriaTela from '../screens/categoriaTela';
+import Login from '../screens/Auth/login';
+import TelaInicial from '../screens/Outros/telaInicial';
+import CriarConta from '../screens/Auth/criarConta';
+import AjudaWhats from '../screens/Outros/ajudaWhats';
+import CadastroProduto from '../screens/Produto/cadastroProduto';
+import CadastroFornecedor from '../screens/Fornecedor/cadastroFornecedor';
+import CadastroClientes from '../screens/Cliente/cadastroClientes';
+import CadastroEstoque from '../screens/Estoque/cadastroEstoque';
+import EntradaEstoque from '../screens/Estoque/entradaEstoque';
+import RetiradaEstoque from '../screens/Estoque/retiradaEstoque';
+import FiltroEstoque from '../screens/Estoque/filtroEstoque';
+import CategoriaTela from '../screens/Categoria/categoriaTela';
 import TabRoutes from './tab.routes';
-import UsuarioTela from '../screens/usuarioTela';
-import CadastroCategoria from '../screens/cadastroCategoria';
-import CadastroUsuario from '../screens/cadastroUsuario';
+import UsuarioTela from '../screens/GerenciamentoUsuario/usuarioTela';
+import CadastroCategoria from '../screens/Categoria/cadastroCategoria';
+import CadastroUsuario from '../screens/GerenciamentoUsuario/cadastroUsuario';
 const Stack = createNativeStackNavigator();
 
 export default function StackRoutes() {

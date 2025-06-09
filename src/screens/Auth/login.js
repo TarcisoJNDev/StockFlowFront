@@ -14,7 +14,7 @@ import {
   Dimensions
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import api from '../services/api';
+import api from '../../services/api';
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState('');
@@ -23,7 +23,6 @@ export default function Login({ navigation }) {
   const [secureTextEntry, setSecureTextEntry] = useState(true);
   const [focusedInput, setFocusedInput] = useState(null);
 
-  // Função assíncrona para login
   const fazerLogin = async () => {
     try {
       setLoading(true);
@@ -61,7 +60,6 @@ export default function Login({ navigation }) {
     fazerLogin();
   };
 
-  // Obtém a altura da tela
   const windowHeight = Dimensions.get('window').height;
 
   return (
@@ -184,7 +182,7 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
     padding: 25,
-    paddingTop: 90, // Espaço para o botão de voltar
+    paddingTop: 90,
   },
   backButton: {
     position: 'absolute',
@@ -236,7 +234,7 @@ const styles = StyleSheet.create({
     height: '100%',
     fontSize: 15,
     color: '#333',
-    paddingVertical: 0, // Importante para alinhamento
+    paddingVertical: 0,
   },
   forgotPassword: {
     alignSelf: 'flex-end',

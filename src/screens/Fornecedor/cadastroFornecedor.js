@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { TextInput, Button, IconButton } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import api from '../services/api';
+import api from '../../services/api';
 
 export default function CadastroFornecedor({ navigation }) {
   
@@ -95,25 +95,43 @@ export default function CadastroFornecedor({ navigation }) {
 
       const dadosFornecedor = {
         nome,
-        cpf_cnpj: cpfCnpj.replace(/\D/g, ''),
-        telefone: telefone.replace(/\D/g, ''),
-        email,
-        observacao
+        cpf_cnpj: cpfCnpj.replace(/\D/g, ''), // Remove formatação
+        telefone: telefone.replace(/\D/g, ''), // Remove formatação
+        email: email || "", // Garante string vazia se não informado
+        observacao: observacao || "" // Garante string vazia se não informado
       };
 
-      console.log("📤 Dados do fornecedor:", dadosFornecedor);
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // Versão real (descomente quando tiver o endpoint)
-      // const response = await api.post('/fornecedores', dadosFornecedor);
-      // console.log('Fornecedor cadastrado:', response.data);
-
-      Alert.alert('Sucesso', 'Fornecedor cadastrado com sucesso!');
-      navigation.goBack();
+      // Chamada real para a API
+      const response = await api.post('/fornecedor/', dadosFornecedor);
+      
+      // Animação de saída (opcional - igual ao cadastroCategoria)
+      Animated.timing(slideAnim, {
+        toValue: 1000,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => {
+        Alert.alert('Sucesso', 'Fornecedor cadastrado com sucesso!', [
+          { 
+            text: 'OK', 
+            onPress: () => navigation.goBack() 
+          }
+        ]);
+      });
 
     } catch (error) {
       console.error('Erro ao cadastrar fornecedor:', error);
-      Alert.alert('Erro', error.response?.data?.message || 'Falha ao cadastrar fornecedor');
+      
+      // Tratamento de erros específicos
+      let errorMessage = 'Falha ao cadastrar fornecedor';
+      if (error.response) {
+        if (error.response.status === 409) {
+          errorMessage = 'CPF/CNPJ já cadastrado';
+        } else if (error.response.data?.message) {
+          errorMessage = error.response.data.message;
+        }
+      }
+      
+      Alert.alert('Erro', errorMessage);
     } finally {
       setLoading(false);
     }
@@ -219,7 +237,7 @@ export default function CadastroFornecedor({ navigation }) {
               mode="contained"
               onPress={cadastrarFornecedor}
               style={styles.button}
-              buttonColor="#2ecc71"
+              buttonColor="#4CAF50"
               disabled={loading}
             >
               {loading ? (

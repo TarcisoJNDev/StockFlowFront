@@ -50,7 +50,7 @@ export default function CadastroEstoque({ navigation }) {
               onPress={() => navigation.navigate('EntradaEstoque')}
               activeOpacity={0.7}
             >
-              <Icon name="cart-arrow-down" size={24} color="#2ecc71" style={styles.icon} />
+              <Icon name="cart-arrow-down" size={24} color="#4CAF50" style={styles.icon} />
               <View style={styles.optionTextContainer}>
                 <Text style={styles.optionTitle}>Entrada de Estoque</Text>
                 <Text style={styles.optionText}>

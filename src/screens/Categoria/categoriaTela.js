@@ -11,7 +11,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 const { width, height } = Dimensions.get('window');
 
-export default function UsuarioTela({ navigation }) {
+export default function CategoriaTela({ navigation }) {
   return (
     <View style={styles.container}>
       <TouchableOpacity
@@ -25,7 +25,7 @@ export default function UsuarioTela({ navigation }) {
         />
         <Text style={styles.title}>
           Listar{"\n"}
-          <Text style={styles.bold}>Usuario</Text>
+          <Text style={styles.bold}>Categoria de Produto</Text>
         </Text>
       </TouchableOpacity>
 
@@ -56,7 +56,7 @@ export default function UsuarioTela({ navigation }) {
 
       <TouchableOpacity
         style={styles.fab}
-        onPress={() => navigation.navigate('CadastroUsuario')}
+        onPress={() => navigation.navigate('CadastroCategoria')}
       >
         <Ionicons
           name="add"
@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
     bottom: height * 0.03,
     right: width * 0.05,
     bottom: height * 0.14,
-    backgroundColor: '#2ecc71',
+    backgroundColor: '#4CAF50',
     borderRadius: width * 0.075,
     width: width * 0.15,
     height: width * 0.15,

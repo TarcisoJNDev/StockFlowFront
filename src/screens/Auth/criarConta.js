@@ -14,10 +14,9 @@ import {
 import { Checkbox } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import api from '../services/api'; // Importe sua instância do axios
+import api from '../../services/api';
 
 export default function CriarConta({ navigation }) {
-  // Estados (mantidos os mesmos)
   const [nome, setNome] = useState('');
   const [senha, setSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
@@ -30,7 +29,6 @@ export default function CriarConta({ navigation }) {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Refs para rolagem automática
   const scrollViewRef = useRef();
   const inputRefs = {
     nome: useRef(),
@@ -41,7 +39,6 @@ export default function CriarConta({ navigation }) {
     nomeLoja: useRef()
   };
 
-  // Função para formatar o telefone no padrão (XX) XXXXX-XXXX
   const formatPhone = (text) => {
     const cleaned = text.replace(/\D/g, '');
 
@@ -59,7 +56,6 @@ export default function CriarConta({ navigation }) {
     setTelefone(formattedText);
   };
 
-  // Função corrigida para rolar até o input quando focado
   const handleFocus = (inputName) => {
     setFocusedInput(inputName);
     setTimeout(() => {
@@ -72,7 +68,6 @@ export default function CriarConta({ navigation }) {
     }, 100);
   };
 
-  // Função assíncrona seguindo seu modelo
   const salvarUsuario = async () => {
     try {
       setLoading(true);
@@ -82,15 +77,13 @@ export default function CriarConta({ navigation }) {
         nome,
         telefone: telefoneSemMascara,
         email,
-        senha, // ATENÇÃO: Nunca logue senhas em produção!
+        senha,
         nomeLoja,
       };
 
-      // SIMULAÇÃO - REMOVA DEPOIS DOS TESTES
       console.log("📤 Dados que seriam enviados:", novoUsuario);
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Simula delay de rede
+      await new Promise(resolve => setTimeout(resolve, 1500));
       console.log("✅ Simulação: Cadastro realizado com sucesso!");
-      // FIM DA SIMULAÇÃO
 
       Alert.alert('Sucesso', 'Cadastro simulado - veja os dados no console');
       navigation.navigate('Home');
@@ -101,6 +94,8 @@ export default function CriarConta({ navigation }) {
       setLoading(false);
     }
   };
+
+
   // const salvarUsuario = async () => {
   //   try {
   //     setLoading(true);
@@ -129,7 +124,6 @@ export default function CriarConta({ navigation }) {
   //   }
   // };
 
-  // Função de validação e submissão
   const handleCadastro = () => {
     if (!termsAccepted) {
       Alert.alert('Atenção', 'Você precisa aceitar os termos de uso');

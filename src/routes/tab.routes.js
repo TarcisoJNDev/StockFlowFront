@@ -1,11 +1,11 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons, MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 
-import FornecedorTela from '../screens/fornecedorTela';
-import ProdutoTela from '../screens/produtoTela';
-import EstoqueTela from '../screens/estoqueTela';
-import ClientesTela from '../screens/clientesTela';
-import Home from '../screens/home';
+import FornecedorTela from '../screens/Fornecedor/fornecedorTela';
+import ProdutoTela from '../screens/Produto/produtoTela';
+import EstoqueTela from '../screens/Estoque/estoqueTela';
+import ClientesTela from '../screens/Cliente/clientesTela';
+import Home from '../screens/Home/home';
 
 const Tab = createBottomTabNavigator();
 

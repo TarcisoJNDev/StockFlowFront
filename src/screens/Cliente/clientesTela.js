@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
     paddingBottom: height * 0.1,
   },
   addButton: {
-    backgroundColor: '#2ecc71',
+    backgroundColor: '#4CAF50',
     position: 'absolute',
     bottom: height * 0.03,
     right: width * 0.05,

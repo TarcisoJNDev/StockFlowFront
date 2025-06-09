@@ -12,7 +12,7 @@ import {
 import { TextInput, Button, Text, IconButton } from 'react-native-paper';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import api from '../services/api';
+import api from '../../services/api';
 
 export default function CadastroClientes({ navigation }) {
   const [nome, setNome] = useState('');
@@ -84,40 +84,65 @@ export default function CadastroClientes({ navigation }) {
     }).start();
   }, []);
 
-
-
-  
   const cadastrarCliente = async () => {
     try {
       setLoading(true);
+      if (!nome) {
+        Alert.alert('Atenção', 'Por favor, informe o nome do cliente');
+        return;
+      }
+
+      if (!cpfCnpj) {
+        Alert.alert('Atenção', 'Por favor, informe o CPF/CNPJ');
+        return;
+      }
+      const cleanedCpfCnpj = cpfCnpj.replace(/\D/g, '');
+      const isCpf = cleanedCpfCnpj.length <= 11;
+
+      let formattedDate = '';
+      if (dataNascimento) {
+        const [day, month, year] = dataNascimento.split('/');
+        formattedDate = (`${year}-${month}-${day}`);
+      }
 
       const dadosCliente = {
         nome,
-        cpf_cnpj: cpfCnpj.replace(/\D/g, ''),
-        telefone: telefone.replace(/\D/g, ''),
-        email,
-        data_nascimento: dataNascimento,
-        observacao,
-        endereco: mostrarEndereco ? {
-          cep: cep.replace(/\D/g, ''),
-          uf,
-          cidade,
-          logradouro: endereco,
-          numero,
-          bairro,
-          complemento
-        } : null
+        tipoCliente: isCpf ? "PF" : "PJ",
+        cpf: isCpf ? cleanedCpfCnpj : null,
+        cnpj: !isCpf ? cleanedCpfCnpj : null,
+        email: email || "",
+        dataNascimento: formattedDate,
+        observacao: observacao || ""
       };
 
-      console.log("📤 Dados do cliente:", dadosCliente);
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const response = await api.post('/cliente/', dadosCliente);
 
-      Alert.alert('Sucesso', 'Cliente cadastrado com sucesso!');
-      navigation.goBack();
+      Animated.timing(slideAnim, {
+        toValue: 1000,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => {
+        Alert.alert('Sucesso', 'Cliente cadastrado com sucesso!', [
+          {
+            text: 'OK',
+            onPress: () => navigation.goBack()
+          }
+        ]);
+      });
 
     } catch (error) {
       console.error('Erro ao cadastrar cliente:', error);
-      Alert.alert('Erro', error.response?.data?.message || 'Falha ao cadastrar cliente');
+
+      let errorMessage = 'Falha ao cadastrar cliente';
+      if (error.response) {
+        if (error.response.status === 409) {
+          errorMessage = 'CPF/CNPJ já cadastrado';
+        } else if (error.response.data?.message) {
+          errorMessage = error.response.data.message;
+        }
+      }
+
+      Alert.alert('Erro', errorMessage);
     } finally {
       setLoading(false);
     }
@@ -306,7 +331,7 @@ export default function CadastroClientes({ navigation }) {
               mode="outlined"
               style={styles.input}
               keyboardType="numeric"
-              maxLength={10} 
+              maxLength={10}
               placeholder="DD/MM/AAAA"
               right={
                 <TextInput.Icon

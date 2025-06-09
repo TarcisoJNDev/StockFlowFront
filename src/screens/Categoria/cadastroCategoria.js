@@ -11,6 +11,7 @@ import {
   Dimensions
 } from 'react-native';
 import { TextInput, Button, IconButton } from 'react-native-paper';
+import api from '../../services/api';
 
 export default function CadastroCategoria({ navigation }) {
   const [titulo, setTitulo] = useState('');
@@ -63,43 +64,44 @@ export default function CadastroCategoria({ navigation }) {
   };
 
   const cadastrarCategoria = async () => {
-    try {
-      setLoading(true);
-      if (!titulo.trim()) {
-        Alert.alert('Atenção', 'Por favor, informe o nome da categoria');
-        return;
-      }
-      
-      console.log("Nova categoria:", { titulo });
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      Animated.parallel([
-        Animated.timing(slideAnim, {
-          toValue: Dimensions.get('window').height,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        })
-      ]).start(() => {
-        Alert.alert('Sucesso', 'Categoria cadastrada com sucesso!', [
-          { 
-            text: 'OK', 
-            onPress: () => navigation.goBack() 
-          }
-        ]);
-      });
-      
-    } catch (error) {
-      console.error('Erro ao cadastrar categoria:', error);
-      Alert.alert('Erro', error.response?.data?.message || 'Falha ao cadastrar categoria');
-    } finally {
-      setLoading(false);
+  try {
+    setLoading(true);
+    if (!titulo.trim()) {
+      Alert.alert('Atenção', 'Por favor, informe o nome da categoria');
+      return;
     }
-  };
+    // Chamada real para a API
+    const response = await api.post('/categoria/', {
+      nome: titulo 
+    });
+
+    Animated.parallel([
+      Animated.timing(slideAnim, {
+        toValue: Dimensions.get('window').height,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      })
+    ]).start(() => {
+      Alert.alert('Sucesso', 'Categoria cadastrada com sucesso!', [
+        { 
+          text: 'OK', 
+          onPress: () => navigation.goBack() 
+        }
+      ]);
+    });
+    
+  } catch (error) {
+    console.error('Erro ao cadastrar categoria:', error);
+    Alert.alert('Erro', error.response?.data?.message || 'Falha ao cadastrar categoria');
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <Animated.View style={[styles.overlay, { opacity: fadeAnim }]}>

@@ -10,9 +10,9 @@ import {
   Platform
 } from 'react-native';
 
-import imagemInicio from '../../assets/imageInicio.png';
-import logo from '../../assets/logo.png';
-import iconWhats from '../../assets/whats.png';
+import imagemInicio from '../../../assets/images/imageInicio.png';
+import logo from '../../../assets/icons/logo.png';
+import iconWhats from '../../../assets/icons/whats.png';
 
 const { width, height } = Dimensions.get('window');
 

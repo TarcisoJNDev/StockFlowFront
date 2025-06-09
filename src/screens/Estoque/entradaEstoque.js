@@ -27,7 +27,6 @@ export default function EntradaEstoque({ visible, onClose, navigation, onAdicion
     try {
       setLoading(true);
 
-      // Validações básicas
       if (!produto) {
         Alert.alert('Atenção', 'Por favor, selecione um produto');
         return;
@@ -38,34 +37,24 @@ export default function EntradaEstoque({ visible, onClose, navigation, onAdicion
         return;
       }
 
-      // Preparar dados para envio
       const dadosEntrada = {
-        produto_id: produto.id, // Assumindo que produto é um objeto com id
+        produto_id: produto.id,
         quantidade: Number(quantidade),
         observacao: observacao || null,
-        tipo: 'entrada' // Adicionei tipo para diferenciar no backend
+        tipo: 'entrada'
       };
 
       console.log("📤 Dados da entrada:", dadosEntrada);
       
-      // Simulação de requisição (substitua pelo seu endpoint real)
       await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Versão real (descomente quando tiver o endpoint)
-      // const response = await api.post('/estoque/movimentacoes', dadosEntrada);
-      // console.log('Entrada registrada:', response.data);
-
       Alert.alert('Sucesso', 'Entrada de estoque registrada com sucesso!');
       
-      // Limpar formulário após sucesso
       setProduto('');
       setQuantidade('');
       setObservacao('');
       
-      // Fechar modal se necessário
       if (onClose) onClose();
 
-      // Chamar callback se existir
       if (typeof onAdicionar === 'function') {
         onAdicionar(dadosEntrada);
       }
