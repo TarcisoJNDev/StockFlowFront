@@ -109,35 +109,6 @@ const salvarUsuario = async () => {
     }
   };
 
-
-  // const salvarUsuario = async () => {
-  //   try {
-  //     setLoading(true);
-  //     // Remove máscara do telefone
-  //     const telefoneSemMascara = telefone.replace(/\D/g, '');
-
-  //     const novoUsuario = {
-  //       nome: nome,
-  //       telefone: telefoneSemMascara,
-  //       email: email,
-  //       senha: senha,
-  //       nomeLoja: nomeLoja,
-  //     };
-
-  //     const response = await api.post('/usuario/', novoUsuario);
-  //     console.log('Usuário cadastrado com sucesso:', response.data);
-
-  //     Alert.alert('Sucesso', 'Cadastro realizado com sucesso!');
-  //     navigation.navigate('Home');
-
-  //   } catch (error) {
-  //     console.error('Erro ao cadastrar usuário:', error);
-  //     Alert.alert('Erro', error.response?.data?.message || 'Erro ao cadastrar usuário');
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
   const handleCadastro = () => {
     if (!termsAccepted) {
       Alert.alert('Atenção', 'Você precisa aceitar os termos de uso');
