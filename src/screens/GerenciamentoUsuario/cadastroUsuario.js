@@ -43,7 +43,7 @@ export default function CadastroUsuario({ visible, onClose, navigation, onUsuari
         return;
       }
 
-      if (!celular || celular.length < 11) {
+      if (!celular || celular.replace(/\D/g, '').length < 11) {
         Alert.alert('Atenção', 'Por favor, informe um celular válido (com DDD)');
         return;
       }
@@ -53,46 +53,52 @@ export default function CadastroUsuario({ visible, onClose, navigation, onUsuari
         return;
       }
 
-      // Preparar dados para envio
+      // Mapeia a permissão selecionada para o enum do backend
+      const permissaoBackend = permissao === 'Administrador' ? 'Administrador' : 'Vendedor';
+
+      // Monta o objeto conforme a entidade Usuario no backend
       const novoUsuario = {
         nome: nome.trim(),
-        email: email.trim(),
+        email: email.trim().toLowerCase(),
         celular: celular.replace(/\D/g, ''),
-        senha: senha,
-        tipo: permissao === 'Administrador' ? 'administrador' : 'vendedor'
+        senha: senha, // O backend deve fazer o hash dessa senha
+        permissao: permissaoBackend
       };
 
-      console.log("📤 Dados do usuário:", novoUsuario);
+      // Chamada real para a API
+      const response = await api.post('/usuario/', novoUsuario);
       
-      // Simulação de requisição (substitua pelo seu endpoint real)
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Versão real (descomente quando tiver o endpoint)
-      // const response = await api.post('/usuario/', novoUsuario);
-      // console.log('Usuário cadastrado:', response.data);
-
-      Alert.alert('Sucesso', 'Usuário cadastrado com sucesso!');
-      
-      // Limpar formulário após sucesso
+      // Limpa o formulário após sucesso
       setNome('');
       setEmail('');
       setCelular('');
       setSenha('');
       setPermissao('Administrador');
       
-      // Fechar modal se necessário
+      // Fecha o modal se necessário
       if (onClose) onClose();
 
-      // Chamar callback se existir
+      // Chama callback se existir
       if (typeof onUsuarioAdicionado === 'function') {
-        onUsuarioAdicionado(novoUsuario);
+        onUsuarioAdicionado(response.data);
       }
+
+      Alert.alert('Sucesso', 'Usuário cadastrado com sucesso!');
+
     } catch (error) {
       console.error('Erro ao cadastrar usuário:', error);
-      Alert.alert(
-        'Erro', 
-        error.response?.data?.message || 'Falha ao cadastrar usuário'
-      );
+      
+      // Tratamento de erros específicos
+      let errorMessage = 'Falha ao cadastrar usuário';
+      if (error.response) {
+        if (error.response.status === 409) {
+          errorMessage = 'E-mail já cadastrado';
+        } else if (error.response.data?.message) {
+          errorMessage = error.response.data.message;
+        }
+      }
+      
+      Alert.alert('Erro', errorMessage);
     } finally {
       setLoading(false);
     }

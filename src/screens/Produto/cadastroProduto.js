@@ -494,7 +494,7 @@ export default function CadastroProduto({ navigation }) {
                   <View style={styles.dropdownContainer}>
                     <ScrollView
                       style={styles.dropdownScroll}
-                      nestedScrollEnabled={true} // Importante para ScrollView dentro de outro ScrollView
+                      nestedScrollEnabled={true}
                     >
                       {unidadesMedida.map((item) => (
                         <TouchableOpacity
@@ -535,7 +535,6 @@ export default function CadastroProduto({ navigation }) {
   );
 }
 
-// Estilos (mantidos os mesmos)
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,

@@ -68,28 +68,42 @@ export default function CriarConta({ navigation }) {
     }, 100);
   };
 
-  const salvarUsuario = async () => {
+const salvarUsuario = async () => {
     try {
       setLoading(true);
+
       const telefoneSemMascara = telefone.replace(/\D/g, '');
+      const isFirstUser = true;
 
       const novoUsuario = {
-        nome,
-        telefone: telefoneSemMascara,
-        email,
-        senha,
-        nomeLoja,
+        nome: nome,
+        email: email,
+        celular: telefoneSemMascara,
+        senha: senha,
+        permissao: isFirstUser ? "Administrador" : "Vendedor"
       };
 
-      console.log("📤 Dados que seriam enviados:", novoUsuario);
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      console.log("✅ Simulação: Cadastro realizado com sucesso!");
+      const response = await api.post('/usuario/', novoUsuario);
 
-      Alert.alert('Sucesso', 'Cadastro simulado - veja os dados no console');
-      navigation.navigate('Home');
+      if (response.data) {
+        console.log('Usuário cadastrado com sucesso:', response.data);
+        
+        Alert.alert('Sucesso', 'Cadastro realizado com sucesso!');
+        navigation.navigate('Home');
+      }
 
     } catch (error) {
-      console.error('Erro simulado:', error);
+      console.error('Erro ao cadastrar usuário:', error);
+
+      let errorMessage = 'Erro ao cadastrar usuário';
+      if (error.response) {
+        if (error.response.status === 409) {
+          errorMessage = 'E-mail já cadastrado';
+        } else if (error.response.data?.message) {
+          errorMessage = error.response.data.message;
+        }
+      }
+      Alert.alert('Erro', errorMessage);
     } finally {
       setLoading(false);
     }
