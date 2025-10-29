@@ -36,12 +36,12 @@ export default function Home({ navigation }) {
         <View style={styles.grid}>
           {[...Array(9)].map((_, index) => {
             const isDisabled = disabledButtons[index];
-            
-            switch(index) {
+
+            switch (index) {
               case 0: // Pedidos
                 return (
-                  <TouchableOpacity 
-                    key={index} 
+                  <TouchableOpacity
+                    key={index}
                     style={[styles.square, isDisabled && styles.disabledButton]}
                     disabled={isDisabled}
                   >
@@ -63,8 +63,8 @@ export default function Home({ navigation }) {
 
               case 2: // Caixa
                 return (
-                  <TouchableOpacity 
-                    key={index} 
+                  <TouchableOpacity
+                    key={index}
                     style={[styles.square, isDisabled && styles.disabledButton]}
                     disabled={isDisabled}
                   >
@@ -74,8 +74,8 @@ export default function Home({ navigation }) {
                 );
               case 3: // Relatórios
                 return (
-                  <TouchableOpacity 
-                    key={index} 
+                  <TouchableOpacity
+                    key={index}
                     style={[styles.square, isDisabled && styles.disabledButton]}
                     disabled={isDisabled}
                   >
@@ -85,8 +85,8 @@ export default function Home({ navigation }) {
                 );
               case 4: // Saúde
                 return (
-                  <TouchableOpacity 
-                    key={index} 
+                  <TouchableOpacity
+                    key={index}
                     style={[styles.square, isDisabled && styles.disabledButton]}
                     disabled={isDisabled}
                   >
@@ -96,19 +96,19 @@ export default function Home({ navigation }) {
                 );
               case 5: // Fiados
                 return (
-                  <TouchableOpacity 
-                    key={index} 
-                    style={[styles.square, isDisabled && styles.disabledButton]}
-                    disabled={isDisabled}
+                  <TouchableOpacity
+                    key={index}
+                    style={[styles.square]}
+                    onPress={() => navigation.navigate('FiadoTela')}
                   >
                     <MaterialIcons name="credit-card" size={24} color="#f39c12" />
-                    <Text style={[styles.cadastroText, isDisabled && styles.disabledText]}>FIADOS</Text>
+                    <Text style={[styles.cadastroText]}>FIADOS</Text>
                   </TouchableOpacity>
                 );
               case 6: // Configurações
                 return (
-                  <TouchableOpacity 
-                    key={index} 
+                  <TouchableOpacity
+                    key={index}
                     style={[styles.square, isDisabled && styles.disabledButton]}
                     disabled={isDisabled}
                   >
@@ -118,8 +118,8 @@ export default function Home({ navigation }) {
                 );
               case 7: // Versão Web
                 return (
-                  <TouchableOpacity 
-                    key={index} 
+                  <TouchableOpacity
+                    key={index}
                     style={[styles.square, isDisabled && styles.disabledButton]}
                     disabled={isDisabled}
                   >
@@ -129,8 +129,8 @@ export default function Home({ navigation }) {
                 );
               case 8: // Meu Catálogo
                 return (
-                  <TouchableOpacity 
-                    key={index} 
+                  <TouchableOpacity
+                    key={index}
                     style={[styles.square, isDisabled && styles.disabledButton]}
                     disabled={isDisabled}
                   >
@@ -144,7 +144,7 @@ export default function Home({ navigation }) {
           })}
         </View>
 
-                {/* Seção Cadastros */}
+        {/* Seção Cadastros */}
         <Text style={styles.sectionTitle}>Cadastros</Text>
         <View style={styles.grid}>
           <TouchableOpacity style={styles.square} onPress={() => navigation.navigate('Produtos')}>

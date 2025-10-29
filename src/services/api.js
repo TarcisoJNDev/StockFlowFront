@@ -1,12 +1,12 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: 'http://192.168.0.102:8080/api',
+    baseURL: 'http://192.168.0.104:8080/api',
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
     },
-    timeout: 10000,
+    timeout: 5000,
 });
 
 api.interceptors.response.use(

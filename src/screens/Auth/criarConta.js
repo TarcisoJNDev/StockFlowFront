@@ -16,6 +16,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import api from '../../services/api';
 
+
 export default function CriarConta({ navigation }) {
   const [nome, setNome] = useState('');
   const [senha, setSenha] = useState('');

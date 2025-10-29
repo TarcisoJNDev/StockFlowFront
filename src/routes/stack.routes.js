@@ -1,6 +1,8 @@
 
-import { createNativeStackNavigator} from '@react-navigation/native-stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+import CadastroFiado from '../screens/Fiado/cadastroFiado';
+import FiadoTela from '../screens/Fiado/fiadoTela';
 import Login from '../screens/Auth/login';
 import TelaInicial from '../screens/Outros/telaInicial';
 import CriarConta from '../screens/Auth/criarConta';
@@ -22,70 +24,78 @@ const Stack = createNativeStackNavigator();
 export default function StackRoutes() {
     return (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
-            <Stack.Screen 
+            <Stack.Screen
                 name="TelaInicial"
                 component={TelaInicial}
             />
-            <Stack.Screen 
+            <Stack.Screen
                 name="Login"
                 component={Login}
             />
-            <Stack.Screen 
+            <Stack.Screen
                 name="CriarConta"
                 component={CriarConta}
             />
-            <Stack.Screen 
+            <Stack.Screen
                 name="AjudaWhats"
                 component={AjudaWhats}
             />
-            <Stack.Screen 
+            <Stack.Screen
                 name="Home"
                 component={TabRoutes}
             />
-            <Stack.Screen 
+            <Stack.Screen
                 name="CadastroProduto"
                 component={CadastroProduto}
             />
-            <Stack.Screen 
+            <Stack.Screen
                 name="CadastroFornecedor"
                 component={CadastroFornecedor}
             />
-            <Stack.Screen 
+            <Stack.Screen
                 name="CadastroClientes"
                 component={CadastroClientes}
             />
-            <Stack.Screen 
+            <Stack.Screen
                 name="CadastroEstoque"
                 component={CadastroEstoque}
             />
-            <Stack.Screen 
+            <Stack.Screen
                 name="EntradaEstoque"
                 component={EntradaEstoque}
-                options={{ presentation: 'modal'}}
+                options={{ presentation: 'modal' }}
             />
-            <Stack.Screen 
+            <Stack.Screen
                 name="RetiradaEstoque"
                 component={RetiradaEstoque}
             />
-            <Stack.Screen 
+            <Stack.Screen
                 name="FiltroEstoque"
                 component={FiltroEstoque}
             />
-            <Stack.Screen 
+            <Stack.Screen
                 name="CategoriaTela"
                 component={CategoriaTela}
             />
-            <Stack.Screen 
+            <Stack.Screen
                 name="UsuarioTela"
                 component={UsuarioTela}
             />
-            <Stack.Screen 
+            <Stack.Screen
                 name="CadastroCategoria"
                 component={CadastroCategoria}
             />
-            <Stack.Screen 
+            <Stack.Screen
                 name="CadastroUsuario"
                 component={CadastroUsuario}
+            />
+            <Stack.Screen
+                name="CadastroFiado"
+                component={CadastroFiado}
+            />
+            <Stack.Screen
+                name="FiadoTela"
+                component={FiadoTela}
             />
         </Stack.Navigator>
     )
