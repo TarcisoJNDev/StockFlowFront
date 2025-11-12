@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import CadastroFiado from '../screens/Fiado/cadastroFiado';
 import FiadoTela from '../screens/Fiado/fiadoTela';
+import EstoqueTela from '../screens/Estoque/estoqueTela';
 import Login from '../screens/Auth/login';
 import TelaInicial from '../screens/Outros/telaInicial';
 import CriarConta from '../screens/Auth/criarConta';
@@ -10,10 +11,6 @@ import AjudaWhats from '../screens/Outros/ajudaWhats';
 import CadastroProduto from '../screens/Produto/cadastroProduto';
 import CadastroFornecedor from '../screens/Fornecedor/cadastroFornecedor';
 import CadastroClientes from '../screens/Cliente/cadastroClientes';
-import CadastroEstoque from '../screens/Estoque/cadastroEstoque';
-import EntradaEstoque from '../screens/Estoque/entradaEstoque';
-import RetiradaEstoque from '../screens/Estoque/retiradaEstoque';
-import FiltroEstoque from '../screens/Estoque/filtroEstoque';
 import CategoriaTela from '../screens/Categoria/categoriaTela';
 import TabRoutes from './tab.routes';
 import UsuarioTela from '../screens/GerenciamentoUsuario/usuarioTela';
@@ -57,23 +54,6 @@ export default function StackRoutes() {
                 component={CadastroClientes}
             />
             <Stack.Screen
-                name="CadastroEstoque"
-                component={CadastroEstoque}
-            />
-            <Stack.Screen
-                name="EntradaEstoque"
-                component={EntradaEstoque}
-                options={{ presentation: 'modal' }}
-            />
-            <Stack.Screen
-                name="RetiradaEstoque"
-                component={RetiradaEstoque}
-            />
-            <Stack.Screen
-                name="FiltroEstoque"
-                component={FiltroEstoque}
-            />
-            <Stack.Screen
                 name="CategoriaTela"
                 component={CategoriaTela}
             />
@@ -96,6 +76,10 @@ export default function StackRoutes() {
             <Stack.Screen
                 name="FiadoTela"
                 component={FiadoTela}
+            />
+            <Stack.Screen
+                name="EstoqueTela"
+                component={EstoqueTela}
             />
         </Stack.Navigator>
     )

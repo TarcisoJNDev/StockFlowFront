@@ -27,7 +27,7 @@ export default function CadastroProduto({ navigation }) {
   const [descricao, setDescricao] = useState('');
   const [custo, setCusto] = useState('');
   const [fornecedores, setFornecedores] = useState([]);
-  const [categorias, setCategorias] = useState([]);
+  const [categorias, setCategorias] = useState();
   const [showFornecedores, setShowFornecedores] = useState(false);
   const [showCategorias, setShowCategorias] = useState(false);
   const [fornecedorSelecionado, setFornecedorSelecionado] = useState(null);
@@ -152,6 +152,9 @@ export default function CadastroProduto({ navigation }) {
         nome: titulo,
         codigoDeBarras: codigoDeBarras.replace(/\D/g, ''),
         descricao: descricao || null,
+        categoria: {
+          id: categoriaSelecionada.id
+        },
         custoCompra: parseFloat(custo.replace(',', '.')),
         precoUnitario: parseFloat(preco.replace(',', '.')),
         precoUnitarioVenda: parseFloat(preco.replace(',', '.')),

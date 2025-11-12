@@ -34,24 +34,24 @@ export default function TabRoutes() {
                 tabBarInactiveTintColor: 'gray',
             })}
         >
-            <Tab.Screen 
+            <Tab.Screen
                 name="Estoque"
                 component={EstoqueTela}
             />
-            <Tab.Screen 
+            <Tab.Screen
                 name="Clientes"
                 component={ClientesTela}
             />
-            <Tab.Screen 
+            <Tab.Screen
                 name="Produtos"
                 component={ProdutoTela}
             />
-            <Tab.Screen 
+            <Tab.Screen
                 name="Fornecedor"
                 component={FornecedorTela}
-                
+
             />
-            <Tab.Screen 
+            <Tab.Screen
                 name="Home"
                 component={Home}
             />
