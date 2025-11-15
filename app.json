@@ -23,9 +23,7 @@
       "edgeToEdgeEnabled": true
     },
     "web": {
-      "bundler": "metro",
-      "output": "static",
-      "ssr": false
+      "bundler": "metro"
     }
   }
 }
