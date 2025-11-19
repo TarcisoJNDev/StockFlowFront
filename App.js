@@ -1,4 +1,3 @@
-// App.js (COM DEBUG)
 import React from 'react';
 import { Platform, View, Text } from 'react-native';
 import { StatusBar } from 'expo-status-bar';

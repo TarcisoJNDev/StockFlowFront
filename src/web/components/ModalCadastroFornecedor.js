@@ -27,7 +27,7 @@ const ModalCadastroFornecedor = ({ visible, onClose, onSalvar, fornecedor }) => 
             // Preencher formulário para edição
             setFormData({
                 nome: fornecedor.nome || '',
-                cpfCnpj: fornecedor.cpf_cnpj || '', // CORRIGIDO: cpf_cnpj
+                cpfCnpj: fornecedor.cpf_cnpj || '',
                 telefone: fornecedor.telefone || '',
                 email: fornecedor.email || '',
                 observacao: fornecedor.observacao || ''
