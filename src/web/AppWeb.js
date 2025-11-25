@@ -57,7 +57,6 @@ const AppContent = () => {
     const [currentScreen, setCurrentScreen] = useState('login');
     const [forceUpdate, setForceUpdate] = useState(0);
 
-    // Effect para escutar mudanças no auth state
     useEffect(() => {
         const handleAuthChange = () => {
             console.log('🔄 Evento authStateChanged recebido - forçando atualização');
@@ -67,6 +66,7 @@ const AppContent = () => {
         window.addEventListener('authStateChanged', handleAuthChange);
         return () => window.removeEventListener('authStateChanged', handleAuthChange);
     }, []);
+
 
     console.log('🔍 AppContent - Estado atual:', {
         user: !!user,

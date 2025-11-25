@@ -1,5 +1,5 @@
 // src/web/screens/LoginWebScreen.js
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
     View,
     Text,
@@ -16,7 +16,12 @@ const LoginWebScreen = ({ onShowRegister }) => {
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const { signIn, enterDemoMode } = useAuth();
+    const [secretClickCount, setSecretClickCount] = useState(0);
+    const [showSecretButton, setShowSecretButton] = useState(false);
+    const { signIn, enterDemoMode, enterDeveloperMode } = useAuth();
+
+    // Referência para o timer do clique secreto
+    const secretTimerRef = useRef(null);
 
     const handleLogin = async () => {
         if (!email || !password) {
@@ -50,6 +55,61 @@ const LoginWebScreen = ({ onShowRegister }) => {
         }
     };
 
+    // Função para o modo desenvolvedor (acesso total sem API)
+    const handleDeveloperMode = () => {
+        Alert.alert(
+            '🔧 Modo Desenvolvedor',
+            'Deseja ativar o modo desenvolvedor? Isso permitirá acesso completo a todas as funcionalidades sem necessidade de API.',
+            [
+                {
+                    text: 'Cancelar',
+                    style: 'cancel'
+                },
+                {
+                    text: 'Ativar Modo Dev',
+                    onPress: () => {
+                        enterDeveloperMode(); // Usa a função do contexto
+                    }
+                }
+            ]
+        );
+    };
+
+    // Detecta cliques secretos no subtítulo
+    const handleSecretClick = () => {
+        setSecretClickCount(prev => {
+            const newCount = prev + 1;
+
+            // Resetar timer anterior
+            if (secretTimerRef.current) {
+                clearTimeout(secretTimerRef.current);
+            }
+
+            // Se chegou a 5 cliques, mostrar botão secreto
+            if (newCount >= 5) {
+                setShowSecretButton(true);
+                Alert.alert('🎮 Easter Egg Encontrado!', 'Modo desenvolvedor desbloqueado!');
+                return 0;
+            }
+
+            // Timer para resetar a contagem após 2 segundos
+            secretTimerRef.current = setTimeout(() => {
+                setSecretClickCount(0);
+            }, 2000);
+
+            return newCount;
+        });
+    };
+
+    // Cleanup do timer
+    useEffect(() => {
+        return () => {
+            if (secretTimerRef.current) {
+                clearTimeout(secretTimerRef.current);
+            }
+        };
+    }, []);
+
     const handleKeyPress = (e) => {
         if (e.key === 'Enter') {
             handleLogin();
@@ -58,11 +118,26 @@ const LoginWebScreen = ({ onShowRegister }) => {
 
     return (
         <View style={styles.container}>
+            {/* Área clicável secreta no canto superior esquerdo */}
+            <TouchableOpacity
+                style={styles.secretArea}
+                onPress={handleSecretClick}
+            />
+
             <View style={styles.card}>
                 {/* Header */}
                 <View style={styles.header}>
                     <Text style={styles.logo}>📦 StockFlow</Text>
-                    <Text style={styles.subtitle}>Sistema de Gestão de Estoque</Text>
+                    <TouchableOpacity onPress={handleSecretClick}>
+                        <Text style={styles.subtitle}>Sistema de Gestão de Estoque</Text>
+                    </TouchableOpacity>
+
+                    {/* Indicador visual dos cliques secretos (apenas para debug) */}
+                    {secretClickCount > 0 && (
+                        <Text style={styles.secretCounter}>
+                            🔍 {secretClickCount}/5
+                        </Text>
+                    )}
                 </View>
 
                 {/* Mensagem de Boas-Vindas */}
@@ -71,6 +146,17 @@ const LoginWebScreen = ({ onShowRegister }) => {
                         Experimente nosso sistema! Crie uma conta ou explore as funcionalidades básicas.
                     </Text>
                 </View>
+
+                {/* Botão Secreto do Modo Desenvolvedor */}
+                {showSecretButton && (
+                    <TouchableOpacity
+                        style={styles.developerButton}
+                        onPress={handleDeveloperMode}
+                    >
+                        <Text style={styles.developerButtonText}>🔧 Modo Desenvolvedor</Text>
+                        <Text style={styles.developerButtonSubtext}>Acesso completo sem API</Text>
+                    </TouchableOpacity>
+                )}
 
                 {/* Formulário */}
                 <View style={styles.form}>
@@ -147,12 +233,14 @@ const LoginWebScreen = ({ onShowRegister }) => {
                     </TouchableOpacity>
                 </View>
 
-                {/* Footer */}
-                <View style={styles.footer}>
-                    <Text style={styles.footerText}>
-                        No modo demonstração, algumas funcionalidades estarão limitadas.
-                    </Text>
-                </View>
+                {/* Footer com área clicável secreta */}
+                <TouchableOpacity onPress={handleSecretClick}>
+                    <View style={styles.footer}>
+                        <Text style={styles.footerText}>
+                            No modo demonstração, algumas funcionalidades estarão limitadas.
+                        </Text>
+                    </View>
+                </TouchableOpacity>
             </View>
         </View>
     );
@@ -165,6 +253,17 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         padding: 20,
+        position: 'relative',
+    },
+    // Área secreta invisível no canto superior esquerdo
+    secretArea: {
+        position: 'absolute',
+        top: 20,
+        left: 20,
+        width: 60,
+        height: 60,
+        backgroundColor: 'transparent',
+        zIndex: 1000,
     },
     card: {
         backgroundColor: '#fff',
@@ -185,6 +284,7 @@ const styles = StyleSheet.create({
     header: {
         alignItems: 'center',
         marginBottom: 16,
+        position: 'relative',
     },
     logo: {
         fontSize: 28,
@@ -195,6 +295,19 @@ const styles = StyleSheet.create({
     subtitle: {
         fontSize: 14,
         color: '#6b7280',
+        textAlign: 'center',
+    },
+    // Indicador secreto (visível apenas durante os cliques)
+    secretCounter: {
+        position: 'absolute',
+        top: -10,
+        right: -10,
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        color: 'white',
+        fontSize: 10,
+        padding: 4,
+        borderRadius: 8,
+        minWidth: 40,
         textAlign: 'center',
     },
     welcomeContainer: {
@@ -210,6 +323,34 @@ const styles = StyleSheet.create({
         fontSize: 13,
         textAlign: 'center',
         lineHeight: 18,
+    },
+    // Botão do modo desenvolvedor
+    developerButton: {
+        backgroundColor: '#6366f1',
+        borderWidth: 2,
+        borderColor: '#4f46e5',
+        borderRadius: 10,
+        padding: 12,
+        alignItems: 'center',
+        marginBottom: 16,
+        shadowColor: '#6366f1',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    developerButtonText: {
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: 'bold',
+        marginBottom: 2,
+    },
+    developerButtonSubtext: {
+        color: 'rgba(255,255,255,0.8)',
+        fontSize: 10,
     },
     form: {
         marginBottom: 16,

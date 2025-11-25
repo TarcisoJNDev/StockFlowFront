@@ -65,8 +65,8 @@ export default function Home({ navigation }) {
                 return (
                   <TouchableOpacity
                     key={index}
-                    style={[styles.square, isDisabled && styles.disabledButton]}
-                    disabled={isDisabled}
+                    style={styles.square}
+                    onPress={() => navigation.navigate('CaixaTela')}
                   >
                     <MaterialCommunityIcons name="cash-register" size={24} color="#2ecc71" />
                     <Text style={[styles.cadastroText, isDisabled && styles.disabledText]}>CAIXA</Text>

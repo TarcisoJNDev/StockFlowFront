@@ -10,7 +10,7 @@ const WebLayout = ({ children, activeSection, onSectionChange }) => {
         { key: 'produtos', label: 'Produtos', icon: '📦', demo: true },
         { key: 'estoque', label: 'Estoque', icon: '📊', demo: false },
         { key: 'clientes', label: 'Clientes', icon: '👥', demo: false },
-        { key: 'fiados', label: 'Fiados', icon: '📝', demo: false },
+        { key: 'fiados', label: 'Vendas a Prazo', icon: '📝', demo: false },
         { key: 'categorias', label: 'Categorias', icon: '📁', demo: true },
         { key: 'fornecedor', label: 'Fornecedor', icon: '🏭', demo: true },
         { key: 'caixa', label: 'Caixa', icon: '💰', demo: false },

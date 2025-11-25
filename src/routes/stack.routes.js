@@ -16,6 +16,7 @@ import TabRoutes from './tab.routes';
 import UsuarioTela from '../screens/GerenciamentoUsuario/usuarioTela';
 import CadastroCategoria from '../screens/Categoria/cadastroCategoria';
 import CadastroUsuario from '../screens/GerenciamentoUsuario/cadastroUsuario';
+import CaixaTela from '../screens/Caixa/CaixaTela';
 const Stack = createNativeStackNavigator();
 
 export default function StackRoutes() {
@@ -80,6 +81,10 @@ export default function StackRoutes() {
             <Stack.Screen
                 name="EstoqueTela"
                 component={EstoqueTela}
+            />
+            <Stack.Screen
+                name="CaixaTela"
+                component={CaixaTela}
             />
         </Stack.Navigator>
     )
